@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>CristalBot Verde Animado + Upgrade + Fotos</title>
+<style>
+body, html {margin:0; padding:0; width:100%; height:100%; font-family: Arial,sans-serif; overflow:hidden; background:#bdf3c8;}
+canvas{position:absolute; top:0; left:0; z-index:0;}
+#intro{position:relative; z-index:1; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; background:#bdf3c8;}
+#intro img{width:300px; margin-bottom:20px;}
+#intro h1{font-size:36px; color:#3a7d44; margin-bottom:20px;}
+#intro p{font-size:18px; color:#2f5d33; margin-bottom:30px; max-width:600px;}
+#intro button{padding:15px 30px; font-size:18px; border:none; border-radius:10px; background:#6cc66c; color:white; cursor:pointer;}
+#intro button:hover{background:#8fdc8f;}
+#chatbot{display:none; position:relative; z-index:1; margin:auto; top:50px; width:480px; background:#a8e6a3; padding:20px; border-radius:20px; border:4px solid #6cc66c; box-shadow:0 0 20px #99d999; color:white;}
+.titulo{text-align:center;font-size:24px;margin-bottom:15px;color:#ffffff;}
+.chat{background:#8fdc8f;height:320px;border-radius:10px;padding:10px;overflow-y:auto;margin-bottom:10px;color:white;}
+.mensagem{margin:5px 0;}
+.usuario{color:#00eaff;}
+.botmsg{color:#ffffff;}
+input,button.chatbtn{width:100%;padding:10px;border-radius:10px;border:none;outline:none;font-size:16px;margin-top:5px;}
+button.chatbtn{background:#6cc66c;color:white; cursor:pointer;}
+button.chatbtn:hover{background:#8fdc8f;}
+img.botimg{margin-top:10px;width:100%;border-radius:10px; transition: all 1s ease;}
+img.animate{transform: translateY(-10px) rotate(10deg);}
+
+/* Aba lateral Upgrade verde */
+#upgradeButton{position:fixed; left:0; top:50%; transform:translateY(-50%); background:#3a7d44; color:white; padding:10px 15px; cursor:pointer; border-radius:0 10px 10px 0; z-index:2; font-weight:bold;}
+#upgradeContainer{display:none; position:fixed; left:60px; top:50%; transform:translateY(-50%); background:#6cc66c; padding:20px; border-radius:15px; z-index:3; width:250px; text-align:center; color:white;}
+#upgradeContainer p{font-size:16px; margin-top:5px;}
+#upgradeContainer button{padding:10px 20px; border:none; border-radius:10px; background:#3a7d44; color:white; cursor:pointer; font-weight:bold;}
+#upgradeContainer button:hover{background:#2f5d33;}
+</style>
+</head>
+<body>
+<canvas id="fundo"></canvas>
+<div id="intro">
+  <img src="CristalBotIntro.png" alt="CristalBot Logo">
+  <h1>Bem-vindo ao CristalBot Verde!</h1>
+  <p>Este é um assistente virtual interativo que responde perguntas, mostra imagens pré-definidas e agora possui uma aba de Upgrade PIX e geração de imagens. Clique em começar!</p>
+  <button onclick="começar()">Começar</button>
+</div>
+<div id="chatbot">
+  <div class="titulo">🔮 CristalBot Verde + Imagens</div>
+  <div class="chat" id="chat"></div>
+  <input id="pergunta" placeholder="Pergunte algo...">
+  <button class="chatbtn" onclick="enviar()">Enviar</button>
+</div>
+
+<!-- Aba lateral Upgrade PIX -->
+<div id="upgradeButton" onclick="toggleUpgrade()">Upgrade</div>
+<div id="upgradeContainer">
+  <p><strong>PIX:</strong> 996247739</p>
+  <p><strong>Nome:</strong> Edileide</p>
+  <button onclick="copiarPIX()">Copiar PIX</button>
+</div>
+
+<script>
+// Fundo animado
+const canvas=document.getElementById('fundo');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+let estrelas=[], lapis=[];
+for(let i=0;i<100;i++) estrelas.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*2+1, vx:Math.random()*0.5-0.25, vy:Math.random()*0.5-0.25});
+for(let i=0;i<20;i++) lapis.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, vx:Math.random()*1-0.5, vy:Math.random()*1-0.5, size:Math.random()*15+10});
+function desenhar(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ estrelas.forEach(s=>{ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='white';ctx.fill();s.x+=s.vx;s.y+=s.vy;if(s.x>canvas.width)s.x=0;if(s.x<0)s.x=canvas.width;if(s.y>canvas.height)s.y=0;if(s.y<0)s.y=canvas.height;});
+ lapis.forEach(l=>{ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.lineTo(l.x+l.size/2,l.y+l.size);ctx.lineTo(l.x-l.size/2,l.y+l.size);ctx.closePath();ctx.fillStyle='yellow';ctx.fill();l.x+=l.vx;l.y+=l.vy;if(l.x>canvas.width)l.x=0;if(l.x<0)l.x=canvas.width;if(l.y>canvas.height)l.y=0;if(l.y<0)l.y=canvas.height;});
+ requestAnimationFrame(desenhar);
+}
+desenhar();
+
+// Chatbot
+function começar(){
+ document.getElementById('intro').style.display='none';
+ document.getElementById('chatbot').style.display='block';
+ chat.innerHTML+=`<div class="mensagem botmsg">Olá! Tudo bem? Pode fazer sua pergunta 😊</div>`;
+}
+const chat=document.getElementById("chat"), input=document.getElementById("pergunta");
+input.addEventListener("keydown",function(e){if(e.key=="Enter"){enviar();}});
+const imagens = {'avião':'aviao.png','carro':'carro.png','bola':'bola.png','pessoa':'pessoa.png'};
+async function enviar(){
+ let t=input.value;
+ if(t.trim()==="")return;
+ chat.innerHTML+=`<div class="mensagem usuario">Você: ${t}</div>`;
+ let found=false;
+ for(let key in imagens){
+   if(t.toLowerCase().includes(key)){
+       let imgEl = `<img class='botimg' id='img${key}' src='${imagens[key]}'>`;
+       chat.innerHTML+=`<div class="mensagem botmsg">CristalBot: ${imgEl}</div>`;
+       if(t.toLowerCase().includes('anime')){
+           setTimeout(()=>{document.getElementById('img'+key).classList.add('animate');},100);
+       }
+       found=true; break;
+   }
+ }
+ if(!found){chat.innerHTML+=`<div class="mensagem botmsg">CristalBot: ${responder(t)}</div>`;}
+ input.value="";
+ chat.scrollTop=chat.scrollHeight;
+}
+function responder(p){
+ p=p.toLowerCase();
+ if(p.includes("oi")&&p.includes("tudo bem")&&p.includes("cristalbot"))return"Tudo bem sim 😊 e com você, como está?";
+ if(p.includes("qual seu nome"))return"Meu nome é CristalBot 🔮";
+ if(p.includes("qual a capital do brasil"))return"A capital do Brasil é Brasília.";
+ if(p.includes("presidente do brasil"))return"O presidente do Brasil é o Lula.";
+ if(p.includes("descobriu a america"))return"Quem descobriu a América foi Cristóvão Colombo.";
+ p=p.replace(/mais/g,'+').replace(/menos/g,'-').replace(/vezes/g,'*').replace(/x/g,'*').replace(/dividido/g,'/');
+ try{let r=eval(p);if(!isNaN(r))return"O resultado é "+r;}catch(e){}
+ return"Entendi 🙂 pode perguntar outra coisa ou uma conta.";
+}
+
+// Aba Upgrade PIX
+function toggleUpgrade(){
+ let upgrade=document.getElementById('upgradeContainer');
+ if(upgrade.style.display==='none') upgrade.style.display='block';
+ else upgrade.style.display='none';
+}
+function copiarPIX(){
+ let pix='996247739';
+ navigator.clipboard.writeText(pix);
+ alert('PIX copiado!');
+}
+</script>
+</body>
+</html>
